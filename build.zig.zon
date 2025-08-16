@@ -1,0 +1,17 @@
+.{
+    .name = .zig_raylib_snake,
+    .version = "0.0.1",
+    .fingerprint = 0x64f29dcde6ff622e,
+    .minimum_zig_version = "0.14.0",
+    .dependencies = .{
+        .raylib_zig = .{
+            .url = "git+https://github.com/raylib-zig/raylib-zig#dfea9ed840374bd4ec29da232aa91ad2bdc368e3",
+            .hash = "raylib_zig-5.6.0-dev-KE8REBs6BQDEXMvrOvcA8Y2L3C4zMDR1zOVA89qk5KwE",
+        },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
