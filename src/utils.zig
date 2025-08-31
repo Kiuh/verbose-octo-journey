@@ -1,21 +1,5 @@
 const Vec2 = @import("vec2.zig").Vec2;
 
-pub fn to_int(in: f32) i32 {
-    return @as(i32, @intFromFloat(in));
-}
-
-pub fn to_float(in: i32) f32 {
-    return @as(f32, @floatFromInt(in));
-}
-
-pub fn min(x: f32, y: f32) f32 {
-    if (x < y) {
-        return x;
-    } else {
-        return y;
-    }
-}
-
 pub const Direction = enum {
     none,
     up,

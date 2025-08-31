@@ -1,0 +1,33 @@
+.{
+    // System constants
+    .title = "Collaboration zig's snake game",
+    .start_screen_size = .{
+        .x = 800,
+        .y = 400,
+    },
+    .target_fps = 60,
+
+    // Game constants
+    .init_snake_pos = .{
+        .x = 0,
+        .y = 3,
+    },
+    .init_snake_length = 3,
+
+    .init_world_size = .{
+        .x = 20,
+        .y = 10,
+    },
+
+    .reduce_size_factor = 0.8,
+
+    .init_apple_count = 12,
+
+    // Rendering
+    .line_thikness = 2.0,
+
+    .background_color = .{ .r = 255, .g = 255, .b = 255, .a = 255 }, // white
+    .lines_color = .{ .r = 0, .g = 0, .b = 0, .a = 255 }, // black
+    .apple_color = .{ .r = 230, .g = 41, .b = 55, .a = 255 }, // red
+    .snake_color = .{ .r = 0, .g = 228, .b = 48, .a = 255 }, // green
+}

@@ -36,4 +36,11 @@ pub const Vec2 = struct {
             .y = @as(f32, @floatFromInt(self.y)),
         };
     }
+
+    pub fn to_rl_vec2(vec: Vec2) rl.Vector2 {
+        return .{
+            .x = @as(f32, @floatFromInt(vec.x)),
+            .y = @as(f32, @floatFromInt(vec.y)),
+        };
+    }
 };
