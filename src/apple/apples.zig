@@ -11,35 +11,31 @@ const Snake = @import("../snake/snake.zig").Snake;
 
 pub const Apples = struct {
     rand: std.Random = undefined,
-
     list: ArrayList(Apple) = undefined,
-    list_allocator: Allocator = undefined,
 
     snake: *Snake = undefined,
-    world: *const World = undefined,
+    world: *World = undefined,
 
-    gcfg: *const GameConfig = undefined,
+    gcfg: GameConfig = undefined,
 
-    pub fn init(
-        allocator: Allocator,
-        snake: *Snake,
-        world: *const World,
-        gcfg: *const GameConfig,
-    ) Apples {
+    pub fn init(snake: *Snake, world: *World, gcfg: GameConfig) Apples {
         return .{
+            .rand = std.crypto.random,
             .list = ArrayList(Apple).empty,
-            .list_allocator = allocator,
 
             .snake = snake,
             .world = world,
-            .gcfg = gcfg,
 
-            .rand = std.crypto.random,
+            .gcfg = gcfg,
         };
     }
 
-    pub fn restart(self: *Apples) !void {
-        self.list.clearAndFree(self.list_allocator);
+    pub fn deinit(self: *Apples, allocator: Allocator) void {
+        self.list.deinit(allocator);
+    }
+
+    pub fn restart(self: *Apples, allocator: Allocator) !void {
+        self.list.clearAndFree(allocator);
 
         for (0..self.gcfg.init_apple_count) |_| {
             var overlap_found = true;
@@ -51,12 +47,14 @@ pub const Apples = struct {
                     .x = self.rand.intRangeAtMost(i32, 0, self.world.width - 1),
                     .y = self.rand.intRangeAtMost(i32, 0, self.world.height - 1),
                 };
+
                 for (self.snake.segments.items) |item| {
                     if (Vec2.isEqual(item.pos, pos)) {
                         overlap_found = true;
                         break;
                     }
                 }
+
                 if (overlap_found) break;
                 for (self.list.items) |item| {
                     if (Vec2.isEqual(item.pos, pos)) {
@@ -65,7 +63,8 @@ pub const Apples = struct {
                     }
                 }
             }
-            try self.list.append(self.list_allocator, Apple{ .pos = pos });
+
+            try self.list.append(allocator, .{ .pos = pos });
         }
     }
 
@@ -122,16 +121,10 @@ pub const Apples = struct {
 
         for (self.list.items, 0..) |apple, i| {
             if (Vec2.isEqual(apple.pos, head.pos)) {
-                const newPos: Vec2 = self.get_position();
-                self.list.items[i].pos = newPos;
-
+                self.list.items[i].pos = self.get_position();
                 return true;
             }
         }
         return false;
-    }
-
-    pub fn deinit(self: *Apples) void {
-        self.list.deinit(self.list_allocator);
     }
 };

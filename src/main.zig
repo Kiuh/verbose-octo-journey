@@ -15,13 +15,12 @@ const Direction = utils.Direction;
 const Color = rl.Color;
 const Allocator = std.mem.Allocator;
 
-// Game variables
 const Game = struct {
-    gcfg: *const GameConfig = undefined,
+    gcfg: GameConfig = undefined,
 
-    world: *const World = undefined,
-    snake: *Snake = undefined, // cannot be const because of the allocator (XD)
-    apples: Apples = undefined,
+    world: *World = undefined,
+    snake: *Snake = undefined,
+    apples: *Apples = undefined,
 
     runtime_screen_size: Vec2 = undefined,
     block_size: rl.Vector2 = .{ .x = 0, .y = 0 },
@@ -30,32 +29,42 @@ const Game = struct {
 
     timer: i64 = 0,
 
-    pub fn init(allocator: Allocator, gcfg: *const GameConfig) Game {
-        var snake = Snake.init(allocator, gcfg);
-        var game = Game{
+    pub fn init(allocator: Allocator, gcfg: GameConfig) !Game {
+        const world = try allocator.create(World);
+        world.* = World.init(gcfg.init_world_size);
+
+        const snake = try allocator.create(Snake);
+        snake.* = Snake.init(gcfg);
+
+        const apples = try allocator.create(Apples);
+        apples.* = Apples.init(snake, world, gcfg);
+
+        return .{
             .gcfg = gcfg,
-            .world = &World.init(gcfg.init_world_size),
-            .snake = &snake,
+            .world = world,
+            .snake = snake,
+            .apples = apples,
             .last_frame_time = std.time.milliTimestamp(),
             .runtime_screen_size = gcfg.start_screen_size,
         };
-        game.apples = Apples.init(allocator, game.snake, game.world, gcfg);
-        return game;
     }
 
-    pub fn start(self: *Game) !void {
-        try self.restart();
+    pub fn deinit(self: *Game, allocator: Allocator) void {
+        self.apples.deinit(allocator);
+        self.snake.deinit(allocator);
+
+        allocator.destroy(self.apples);
+        allocator.destroy(self.snake);
+        allocator.destroy(self.world);
     }
 
-    pub fn deinit(self: *Game) void {
-        self.snake.deinit();
-        self.apples.deinit();
+    pub fn start(self: *Game, allocator: Allocator) !void {
+        try self.restart(allocator);
     }
 
-    pub fn restart(self: *Game) !void {
-        // order IS important
-        try self.snake.restart();
-        try self.apples.restart();
+    pub fn restart(self: *Game, allocator: Allocator) !void {
+        try self.snake.restart(allocator);
+        try self.apples.restart(allocator);
     }
 
     pub fn hanle_input(self: *Game) void {
@@ -85,22 +94,22 @@ const Game = struct {
         return false;
     }
 
-    pub fn update(self: *Game) !void {
+    pub fn update(self: *Game, allocator: Allocator) !void {
         const delta_time: i64 = std.time.milliTimestamp() - self.last_frame_time;
         self.timer += delta_time;
 
         const tick_time = std.time.ms_per_s * 0.5;
         if (self.timer >= tick_time) {
-            const last_segment: *Segment = self.snake.segments.items[self.snake.segments.items.len - 1];
+            const last_segment = self.snake.segments.items[self.snake.segments.items.len - 1];
             self.snake.move();
             if (self.check_snake()) {
-                try self.restart();
+                try self.restart(allocator);
                 return;
             }
 
             const apple_found = self.apples.check_apples();
             if (apple_found) {
-                try self.snake.grow(last_segment);
+                try self.snake.grow(allocator, last_segment);
             }
             self.timer = 0;
         }
@@ -118,9 +127,11 @@ const Game = struct {
     }
 
     fn get_grid_pos(self: *Game, pos: Vec2) rl.Vector2 {
+        const rl_pos = Vec2.to_rl_vec2(pos);
+
         return rl.Vector2{
-            .x = @as(f32, @floatFromInt(pos.x)) * self.block_size.x,
-            .y = @as(f32, @floatFromInt(pos.y)) * self.block_size.y,
+            .x = rl_pos.x * self.block_size.x,
+            .y = rl_pos.y * self.block_size.y,
         };
     }
 
@@ -144,7 +155,10 @@ const Game = struct {
         var j: i32 = 0;
         while (j <= self.world.height) : (j += 1) {
             const pos_y: f32 = @as(f32, @floatFromInt(j)) * self.block_size.y;
-            const start_pos = rl.Vector2{ .x = 0, .y = pos_y };
+            const start_pos = rl.Vector2{
+                .x = 0,
+                .y = pos_y,
+            };
             const end_pos = rl.Vector2{
                 .x = @as(f32, @floatFromInt(self.runtime_screen_size.x)),
                 .y = pos_y,
@@ -214,7 +228,7 @@ const Game = struct {
 };
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa: std.heap.GeneralPurposeAllocator(.{}) = .init;
     const allocator = gpa.allocator();
 
     const config = rl.ConfigFlags{
@@ -224,7 +238,7 @@ pub fn main() !void {
         .msaa_4x_hint = true,
     };
 
-    const gcfg: GameConfig = @import("game_config.zon");
+    const gcfg = @as(GameConfig, @import("game_config.zon"));
 
     rl.setConfigFlags(config);
     rl.initWindow(
@@ -236,19 +250,14 @@ pub fn main() !void {
     defer rl.closeWindow();
     rl.setTargetFPS(gcfg.target_fps);
 
-    var game = Game.init(allocator, &gcfg);
-    defer game.deinit();
+    var game = try Game.init(allocator, gcfg);
+    defer game.deinit(allocator);
 
-    // std.debug.print("game.world  --> {}\n", .{game.world});
-    // std.debug.print("game.snake  --> {}\n", .{game.snake});
-    // std.debug.print("game.apples --> {}\n", .{game.apples});
-    // std.debug.print("game --> {}\n", .{game});
-
-    try game.start();
+    try game.start(allocator);
 
     while (!rl.windowShouldClose()) {
         game.hanle_input();
-        try game.update();
+        try game.update(allocator);
         game.draw();
     }
 }
