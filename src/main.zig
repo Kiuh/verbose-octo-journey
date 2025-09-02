@@ -19,8 +19,8 @@ const Allocator = std.mem.Allocator;
 const Game = struct {
     gcfg: *const GameConfig = undefined,
 
-    world: World = undefined,
-    snake: Snake = undefined,
+    world: *const World = undefined,
+    snake: *Snake = undefined, // cannot be const because of the allocator (XD)
     apples: Apples = undefined,
 
     runtime_screen_size: Vec2 = undefined,
@@ -31,14 +31,15 @@ const Game = struct {
     timer: i64 = 0,
 
     pub fn init(allocator: Allocator, gcfg: *const GameConfig) Game {
+        var snake = Snake.init(allocator, gcfg);
         var game = Game{
             .gcfg = gcfg,
-            .world = World.init(gcfg.*.init_world_size),
-            .snake = Snake.init(allocator, gcfg),
+            .world = &World.init(gcfg.init_world_size),
+            .snake = &snake,
             .last_frame_time = std.time.milliTimestamp(),
             .runtime_screen_size = gcfg.start_screen_size,
         };
-        game.apples = Apples.init(allocator, &game.snake, &game.world, gcfg);
+        game.apples = Apples.init(allocator, game.snake, game.world, gcfg);
         return game;
     }
 
@@ -52,8 +53,9 @@ const Game = struct {
     }
 
     pub fn restart(self: *Game) !void {
-        try self.apples.restart();
+        // order IS important
         try self.snake.restart();
+        try self.apples.restart();
     }
 
     pub fn hanle_input(self: *Game) void {
@@ -89,7 +91,7 @@ const Game = struct {
 
         const tick_time = std.time.ms_per_s * 0.5;
         if (self.timer >= tick_time) {
-            const last_segment: Segment = self.snake.segments.items[self.snake.segments.items.len - 1];
+            const last_segment: *Segment = self.snake.segments.items[self.snake.segments.items.len - 1];
             self.snake.move();
             if (self.check_snake()) {
                 try self.restart();
@@ -237,12 +239,13 @@ pub fn main() !void {
     var game = Game.init(allocator, &gcfg);
     defer game.deinit();
 
-    std.debug.print("game.world  --> {}\n\n", .{game.world});
-    std.debug.print("game.snake  --> {}\n\n", .{game.snake});
-    std.debug.print("game.apples --> {}\n\n", .{game.apples});
-    std.debug.print("game --> {}\n\n", .{game});
+    // std.debug.print("game.world  --> {}\n", .{game.world});
+    // std.debug.print("game.snake  --> {}\n", .{game.snake});
+    // std.debug.print("game.apples --> {}\n", .{game.apples});
+    // std.debug.print("game --> {}\n", .{game});
 
     try game.start();
+
     while (!rl.windowShouldClose()) {
         game.hanle_input();
         try game.update();

@@ -1,8 +1,8 @@
 const rl = @import("raylib");
 
 pub const Vec2 = struct {
-    x: i32 = 0,
-    y: i32 = 0,
+    x: i32 = undefined,
+    y: i32 = undefined,
 
     pub fn create(x: i32, y: i32) Vec2 {
         return .{

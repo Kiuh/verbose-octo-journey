@@ -15,14 +15,14 @@ pub const Apples = struct {
     list: ArrayList(Apple) = undefined,
     list_allocator: Allocator = undefined,
 
-    snake: *const Snake = undefined,
+    snake: *Snake = undefined,
     world: *const World = undefined,
 
     gcfg: *const GameConfig = undefined,
 
     pub fn init(
         allocator: Allocator,
-        snake: *const Snake,
+        snake: *Snake,
         world: *const World,
         gcfg: *const GameConfig,
     ) Apples {
@@ -42,25 +42,30 @@ pub const Apples = struct {
         self.list.clearAndFree(self.list_allocator);
 
         for (0..self.gcfg.init_apple_count) |_| {
-            var apple = Apple{};
-            var isFounded = false;
-            while (!isFounded) {
-                apple.pos = Vec2{
+            var overlap_found = true;
+            var pos = Vec2{};
+
+            while (overlap_found) {
+                overlap_found = false;
+                pos = Vec2{
                     .x = self.rand.intRangeAtMost(i32, 0, self.world.width - 1),
                     .y = self.rand.intRangeAtMost(i32, 0, self.world.height - 1),
                 };
                 for (self.snake.segments.items) |item| {
-                    if (!Vec2.isEqual(item.pos, apple.pos)) {
-                        isFounded = true;
+                    if (Vec2.isEqual(item.pos, pos)) {
+                        overlap_found = true;
+                        break;
                     }
                 }
+                if (overlap_found) break;
                 for (self.list.items) |item| {
-                    if (!Vec2.isEqual(item.pos, apple.pos)) {
-                        isFounded = true;
+                    if (Vec2.isEqual(item.pos, pos)) {
+                        overlap_found = true;
+                        break;
                     }
                 }
             }
-            try self.list.append(self.list_allocator, apple);
+            try self.list.append(self.list_allocator, Apple{ .pos = pos });
         }
     }
 

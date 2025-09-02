@@ -10,7 +10,7 @@ const GameConfig = @import("../game_config.zig").GameConfig;
 const Segment = @import("segment.zig").Segment;
 
 pub const Snake = struct {
-    segments: ArrayList(Segment) = undefined,
+    segments: ArrayList(*Segment) = undefined,
     segments_allocator: Allocator = undefined,
 
     last_movement_dir: Direction = .down,
@@ -20,13 +20,13 @@ pub const Snake = struct {
 
     pub fn init(allocator: Allocator, gcfg: *const GameConfig) Snake {
         return .{
-            .segments = ArrayList(Segment).empty,
+            .segments = ArrayList(*Segment).empty,
             .segments_allocator = allocator,
             .gcfg = gcfg,
         };
     }
 
-    pub fn get_head(self: *const Snake) Segment {
+    pub fn get_head(self: *const Snake) *Segment {
         return self.segments.items[0];
     }
 
@@ -38,24 +38,22 @@ pub const Snake = struct {
         self.segments.clearAndFree(self.segments_allocator);
         self.last_movement_dir = .down;
         self.input_direction = .none;
-
-        for (0..self.gcfg.init_snake_length) |i| {
+        std.log.debug("init snake legth: {}", .{self.gcfg.*.init_snake_length});
+        for (0..self.gcfg.*.init_snake_length) |i| {
             var seg = Segment{};
             seg.pos = Vec2{
                 .x = self.gcfg.init_snake_pos.x,
                 .y = self.gcfg.init_snake_pos.y - 1 * @as(i32, @intCast(i)),
             };
-            try self.segments.append(self.segments_allocator, seg);
+            std.log.debug("len: {}, capacity: {}", .{ self.segments.items.len, self.segments.capacity });
+            // this is where it messes up
+            try self.segments.append(self.segments_allocator, &seg);
         }
     }
 
-    pub fn grow(self: *Snake, new_segment: Segment) !void {
-        try self.segments.append(
-            self.segments_allocator,
-            Segment{
-                .pos = new_segment.pos,
-            },
-        );
+    pub fn grow(self: *Snake, new_segment: *Segment) !void {
+        std.log.debug("len: {}, capacity: {}", .{ self.segments.items.len, self.segments.capacity });
+        try self.segments.append(self.segments_allocator, new_segment);
     }
 
     pub fn check_overlap(self: *Snake) bool {
