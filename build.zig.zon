@@ -2,11 +2,11 @@
     .name = .zig_raylib_snake,
     .version = "0.0.2",
     .fingerprint = 0x64f29dcde6ff622e,
-    .minimum_zig_version = "0.14.0",
+    .minimum_zig_version = "0.15.1",
     .dependencies = .{
         .raylib_zig = .{
-            .url = "git+https://github.com/raylib-zig/raylib-zig#dfea9ed840374bd4ec29da232aa91ad2bdc368e3",
-            .hash = "raylib_zig-5.6.0-dev-KE8REBs6BQDEXMvrOvcA8Y2L3C4zMDR1zOVA89qk5KwE",
+            .url = "git+https://github.com/raylib-zig/raylib-zig#df70c5c952f61f84a39cd2af5649f5ad7a645b6f",
+            .hash = "raylib_zig-5.6.0-dev-KE8REH9ABQBo9v5YfUwPYdgihp7NNFOr_2FJOiVJH7bH",
         },
     },
     .paths = .{
