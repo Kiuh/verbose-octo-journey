@@ -107,8 +107,11 @@ const Game = struct {
                 return;
             }
 
-            const apple_found = self.apples.check_apples();
-            if (apple_found) {
+            const found_apple_idx = self.apples.check_apples();
+            if (found_apple_idx != -1) {
+                // funny type shenanigans :D
+                const apple_idx = @as(usize, @intCast(found_apple_idx));
+                self.apples.list.items[apple_idx].pos = self.apples.get_position();
                 try self.snake.grow(allocator, last_segment);
             }
             self.timer = 0;

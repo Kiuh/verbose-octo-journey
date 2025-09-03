@@ -15,6 +15,7 @@ pub const Snake = struct {
     last_movement_dir: Direction = .down,
     input_direction: Direction = .none,
 
+    // I'd leave this a reference if we want to read and update it on-the-fly in the future
     gcfg: GameConfig = undefined,
 
     pub fn init(gcfg: GameConfig) Snake {
@@ -28,8 +29,8 @@ pub const Snake = struct {
         self.segments.deinit(allocator);
     }
 
-    pub fn get_head(self: *Snake) *Segment {
-        return &self.segments.items[0];
+    pub fn get_head(self: *Snake) Segment {
+        return self.segments.items[0];
     }
 
     pub fn restart(self: *Snake, allocator: Allocator) !void {
@@ -54,8 +55,7 @@ pub const Snake = struct {
 
     pub fn check_overlap(self: *Snake) bool {
         const head = self.segments.items[0];
-        for (self.segments, 0..) |seg, idx| {
-            _ = idx;
+        for (self.segments.items) |seg| {
             if (Vec2.isEqual(seg.pos, head.pos)) {
                 return true;
             }
