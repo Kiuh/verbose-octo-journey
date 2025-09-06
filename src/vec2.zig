@@ -1,8 +1,8 @@
 const rl = @import("raylib");
 
 pub const Vec2 = struct {
-    x: i32 = 0,
-    y: i32 = 0,
+    x: i32 = undefined,
+    y: i32 = undefined,
 
     pub fn create(x: i32, y: i32) Vec2 {
         return .{
@@ -34,6 +34,13 @@ pub const Vec2 = struct {
         return .{
             .x = @as(f32, @floatFromInt(self.x)),
             .y = @as(f32, @floatFromInt(self.y)),
+        };
+    }
+
+    pub fn to_rl_vec2(vec: Vec2) rl.Vector2 {
+        return .{
+            .x = @as(f32, @floatFromInt(vec.x)),
+            .y = @as(f32, @floatFromInt(vec.y)),
         };
     }
 };
