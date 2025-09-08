@@ -1,17 +1,30 @@
 .{
-    .name = .zig_raylib_snake,
-    .version = "0.0.2",
-    .fingerprint = 0x64f29dcde6ff622e,
+    .name = .verbose_octo_journey,
+    .version = "0.0.1",
+    .fingerprint = 0xcaadbbed3342cf1e,
     .minimum_zig_version = "0.15.1",
     .dependencies = .{
+        // modules
         .raylib_zig = .{
-            .url = "git+https://github.com/raylib-zig/raylib-zig#df70c5c952f61f84a39cd2af5649f5ad7a645b6f",
-            .hash = "raylib_zig-5.6.0-dev-KE8REH9ABQBo9v5YfUwPYdgihp7NNFOr_2FJOiVJH7bH",
+            .url = "modules/raylib-zig",
+            .hash = "raylib_zig-5.6.0-dev-KE8REAJXBQDTDpU0e6nrFEuiLTLubAv17WQVPfURrsnr",
+        },
+        // programs
+        .dependency_viewer = .{
+            .url = "programs/dependency_viewer",
+            .hash = "dependency_viewer-0.0.0-AAAAABYEAAD1rjeunzwvOUQdvG6j8CDDR6kf4SaGmmev",
+        },
+        // projects
+        .raylib_snake = .{
+            .url = "projects/raylib-snake",
+            .hash = "raylib_snake-0.0.2-9Cfr-DdKAAACtyyqFVTH0N0xZQfn0NtDtLiXRCg1DHRX",
         },
     },
     .paths = .{
+        "modules",
+        "programs",
+        "projects",
         "build.zig",
         "build.zig.zon",
-        "src",
     },
 }
