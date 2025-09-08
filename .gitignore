@@ -1,2 +1,20 @@
-.zig-cache
-zig-out
+# Zig build artifacts
+.zig-cache/
+zig-out/
+*.o
+*.obj
+*.lib
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Other common ignored files
+.DS_Store
+.vscode/
+.vs/
+.idea/
+out/
+*.log
+*.tmp
