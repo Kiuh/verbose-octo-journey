@@ -5,7 +5,7 @@
     .minimum_zig_version = "0.15.1",
     .dependencies = .{
         // modules
-        .raylib_zig = .{ .path = "modules/raylib-zig" },
+        .raylib_zig = .{ .path = "modules/thirdparty/raylib-zig" },
         // programs
         .dependency_viewer = .{ .path = "programs/dependency_viewer" },
         // projects
