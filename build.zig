@@ -1,9 +1,27 @@
 const std = @import("std");
+const zlinter = @import("zlinter");
 
 const Build = std.Build;
 
 pub fn build(b: *Build) void {
+    const lint_cmd = b.step("lint", "Lint source code");
     const build_all = b.step("all", "Build everything");
+
+    lint_cmd.dependOn(step: {
+        var builder = zlinter.builder(b, .{});
+        builder.addRule(.{ .builtin = .field_naming }, .{});
+        builder.addRule(.{ .builtin = .declaration_naming }, .{});
+        builder.addRule(.{ .builtin = .function_naming }, .{});
+        builder.addRule(.{ .builtin = .file_naming }, .{});
+        builder.addRule(.{ .builtin = .switch_case_ordering }, .{});
+        builder.addRule(.{ .builtin = .no_unused }, .{});
+        builder.addRule(.{ .builtin = .no_deprecated }, .{});
+        builder.addRule(.{ .builtin = .no_orelse_unreachable }, .{});
+        builder.addPaths(.{
+            .exclude = &.{b.path("modules/thirdparty/")},
+        });
+        break :step builder.build();
+    });
 
     const dep_viewer = b.dependency(
         "dependency_viewer",

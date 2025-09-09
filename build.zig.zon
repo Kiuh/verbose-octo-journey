@@ -10,6 +10,10 @@
         .dependency_viewer = .{ .path = "programs/dependency_viewer" },
         // projects
         .raylib_snake = .{ .path = "projects/raylib-snake" },
+        .zlinter = .{
+            .url = "git+https://github.com/kurtwagner/zlinter?ref=0.15.x#da076e51e7aa348f83607b7b241d859b0184329a",
+            .hash = "zlinter-0.0.1-OjQ08QkJCwBhuO1JtdujNh7OC56rR7kiofwavKpgDj96",
+        },
     },
     .paths = .{
         "modules",
