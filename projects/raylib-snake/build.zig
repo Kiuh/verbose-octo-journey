@@ -29,7 +29,7 @@ pub fn build(b: *std.Build) void {
     });
 
     // Link Raylib
-    exe.linkLibrary(raylib_artifact);
+    exe.root_module.linkLibrary(raylib_artifact);
     exe.root_module.addImport("raylib", raylib);
     exe.root_module.addImport("raygui", raygui);
 

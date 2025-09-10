@@ -12,7 +12,6 @@ const World = @import("world.zig").World;
 const GameConfig = @import("game_config.zig").GameConfig;
 
 const Direction = utils.Direction;
-const Color = rl.Color;
 const Allocator = std.mem.Allocator;
 
 const Game = struct {
@@ -67,19 +66,19 @@ const Game = struct {
         try self.apples.restart(allocator);
     }
 
-    pub fn hanle_input(self: *Game) void {
+    pub fn hanleInput(self: *Game) void {
         if (rl.isKeyPressed(rl.KeyboardKey.right)) {
             self.snake.input_direction = Direction.right;
         } else if (rl.isKeyPressed(rl.KeyboardKey.left)) {
             self.snake.input_direction = Direction.left;
         } else if (rl.isKeyPressed(rl.KeyboardKey.up)) {
-            self.snake.input_direction = Direction.up;
+            self.snake.input_direction = Direction.upward;
         } else if (rl.isKeyPressed(rl.KeyboardKey.down)) {
-            self.snake.input_direction = Direction.down;
+            self.snake.input_direction = Direction.downward;
         }
     }
 
-    pub fn check_snake(self: *Game) bool {
+    pub fn checkSnake(self: *Game) bool {
         const head = self.snake.segments.items[0];
         if (head.pos.x >= self.world.width or head.pos.x < 0 or head.pos.y >= self.world.height or head.pos.y < 0) {
             return true;
@@ -102,16 +101,16 @@ const Game = struct {
         if (self.timer >= tick_time) {
             const last_segment = self.snake.segments.items[self.snake.segments.items.len - 1];
             self.snake.move();
-            if (self.check_snake()) {
+            if (self.checkSnake()) {
                 try self.restart(allocator);
                 return;
             }
 
-            const found_apple_idx = self.apples.check_apples();
+            const found_apple_idx = self.apples.checkApples();
             if (found_apple_idx != -1) {
                 // funny type shenanigans :D
                 const apple_idx = @as(usize, @intCast(found_apple_idx));
-                self.apples.list.items[apple_idx].pos = self.apples.get_position();
+                self.apples.list.items[apple_idx].pos = self.apples.getPosition();
                 try self.snake.grow(allocator, last_segment);
             }
             self.timer = 0;
@@ -138,7 +137,7 @@ const Game = struct {
         };
     }
 
-    pub fn draw_grid(self: *Game) void {
+    pub fn drawGrid(self: *Game) void {
         var i: i32 = 0;
         while (i <= self.world.width) : (i += 1) {
             const pos_x = @as(f32, @floatFromInt(i)) * self.block_size.x;
@@ -155,9 +154,9 @@ const Game = struct {
             );
         }
 
-        var j: i32 = 0;
-        while (j <= self.world.height) : (j += 1) {
-            const pos_y: f32 = @as(f32, @floatFromInt(j)) * self.block_size.y;
+        var row: i32 = 0;
+        while (row <= self.world.height) : (row += 1) {
+            const pos_y: f32 = @as(f32, @floatFromInt(row)) * self.block_size.y;
             const start_pos = rl.Vector2{
                 .x = 0,
                 .y = pos_y,
@@ -175,7 +174,7 @@ const Game = struct {
         }
     }
 
-    pub fn draw_apples(self: *Game) void {
+    pub fn drawApples(self: *Game) void {
         for (self.apples.list.items) |apple| {
             const pos = self.get_grid_pos_offset(apple.pos);
             const radius = @min(self.block_size.x, self.block_size.y) / 2.0;
@@ -188,7 +187,7 @@ const Game = struct {
         }
     }
 
-    pub fn draw_snake(self: *Game) void {
+    pub fn drawSnake(self: *Game) void {
         var size_factor: f32 = self.gcfg.reduce_size_factor;
         const size_step: f32 = 0.4 / @as(f32, @floatFromInt(self.snake.segments.items.len));
         for (self.snake.segments.items) |seg| {
@@ -224,14 +223,14 @@ const Game = struct {
             .y = @as(f32, @floatFromInt(self.runtime_screen_size.y)) / @as(f32, @floatFromInt(self.world.height)),
         };
 
-        self.draw_grid();
-        self.draw_apples();
-        self.draw_snake();
+        self.drawGrid();
+        self.drawApples();
+        self.drawSnake();
     }
 };
 
 pub fn main() !void {
-    var gpa: std.heap.GeneralPurposeAllocator(.{}) = .init;
+    var gpa: std.heap.DebugAllocator(.{}) = .init;
     const allocator = gpa.allocator();
 
     const config = rl.ConfigFlags{
@@ -259,7 +258,7 @@ pub fn main() !void {
     try game.start(allocator);
 
     while (!rl.windowShouldClose()) {
-        game.hanle_input();
+        game.hanleInput();
         try game.update(allocator);
         game.draw();
     }

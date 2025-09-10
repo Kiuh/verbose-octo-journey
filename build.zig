@@ -1,9 +1,22 @@
 const std = @import("std");
+const zlinter = @import("zlinter");
 
 const Build = std.Build;
 
 pub fn build(b: *Build) void {
+    const lint_cmd = b.step("lint", "Lint source code");
     const build_all = b.step("all", "Build everything");
+
+    lint_cmd.dependOn(step: {
+        var builder = zlinter.builder(b, .{});
+        inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
+            builder.addRule(.{ .builtin = @enumFromInt(f.value) }, .{});
+        }
+        builder.addPaths(.{
+            .exclude = &.{b.path("modules/thirdparty/")},
+        });
+        break :step builder.build();
+    });
 
     const dep_viewer = b.dependency(
         "dependency_viewer",
