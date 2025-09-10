@@ -9,14 +9,9 @@ pub fn build(b: *Build) void {
 
     lint_cmd.dependOn(step: {
         var builder = zlinter.builder(b, .{});
-        builder.addRule(.{ .builtin = .field_naming }, .{});
-        builder.addRule(.{ .builtin = .declaration_naming }, .{});
-        builder.addRule(.{ .builtin = .function_naming }, .{});
-        builder.addRule(.{ .builtin = .file_naming }, .{});
-        builder.addRule(.{ .builtin = .switch_case_ordering }, .{});
-        builder.addRule(.{ .builtin = .no_unused }, .{});
-        builder.addRule(.{ .builtin = .no_deprecated }, .{});
-        builder.addRule(.{ .builtin = .no_orelse_unreachable }, .{});
+        inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
+            builder.addRule(.{ .builtin = @enumFromInt(f.value) }, .{});
+        }
         builder.addPaths(.{
             .exclude = &.{b.path("modules/thirdparty/")},
         });
