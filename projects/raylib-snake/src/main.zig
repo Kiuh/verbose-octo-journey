@@ -1,7 +1,7 @@
 const rl = @import("raylib");
 const std = @import("std");
 
-const utils = @import("utils.zig");
+const direction = @import("direction.zig");
 const Vec2 = @import("vec2.zig").Vec2;
 
 const Apples = @import("apple/apples.zig").Apples;
@@ -11,7 +11,7 @@ const World = @import("world.zig").World;
 
 const GameConfig = @import("game_config.zig").GameConfig;
 
-const Direction = utils.Direction;
+const Direction = direction.Direction;
 const Allocator = std.mem.Allocator;
 
 const Game = struct {
