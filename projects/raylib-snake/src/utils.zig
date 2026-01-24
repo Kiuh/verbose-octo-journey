@@ -27,3 +27,23 @@ pub fn directionToVector(dir: Direction) Vec2 {
         },
     }
 }
+
+pub fn getOppositeDirection(dir: Direction) Direction {
+    switch (dir) {
+        Direction.up => {
+            return .down;
+        },
+        Direction.down => {
+            return .up;
+        },
+        Direction.right => {
+            return .left;
+        },
+        Direction.left => {
+            return .right;
+        },
+        Direction.none => {
+            return .none;
+        },
+    }
+}
