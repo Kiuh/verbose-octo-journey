@@ -2,18 +2,18 @@ const Vec2 = @import("vec2.zig").Vec2;
 
 pub const Direction = enum {
     none,
-    upward,
-    downward,
+    up,
+    down,
     right,
     left,
 };
 
 pub fn directionToVector(dir: Direction) Vec2 {
     switch (dir) {
-        Direction.upward => {
+        Direction.up => {
             return Vec2{ .x = 0, .y = -1 };
         },
-        Direction.downward => {
+        Direction.down => {
             return Vec2{ .x = 0, .y = 1 };
         },
         Direction.right => {

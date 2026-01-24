@@ -3,13 +3,60 @@ const zlinter = @import("zlinter");
 
 const Build = std.Build;
 
+const rules = .{
+    .{
+        .rule = zlinter.BuiltinLintRule.field_naming,
+        .config = .{
+            .error_field_min_len = .{
+                .severity = .off,
+                .len = 0,
+            },
+        },
+    },
+    .{
+        .rule = zlinter.BuiltinLintRule.field_ordering,
+        .config = .{
+            .union_field_order = .{
+                .order = .alphabetical_ascending,
+                .severity = .warning,
+            },
+        },
+    },
+    .{
+        .rule = zlinter.BuiltinLintRule.require_doc_comment,
+        .config = .{
+            .severity = .off,
+        },
+    },
+    .{
+        .rule = zlinter.BuiltinLintRule.no_undefined,
+        .config = .{
+            .severity = .off,
+        },
+    },
+    .{
+        .rule = zlinter.BuiltinLintRule.no_inferred_error_unions,
+        .config = .{
+            .severity = .off,
+        },
+    },
+};
+
 pub fn build(b: *Build) void {
     const lint_cmd = b.step("lint", "Lint source code");
     const build_all = b.step("all", "Build everything");
 
     lint_cmd.dependOn(step: {
         var builder = zlinter.builder(b, .{});
-        inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
+        outer: inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
+            inline for (rules) |value| {
+                if (f.value == @intFromEnum(value.rule)) {
+                    // builder.addRule(
+                    //     .{ .builtin = value.rule },
+                    // );
+                    continue :outer;
+                }
+            }
             builder.addRule(.{ .builtin = @enumFromInt(f.value) }, .{});
         }
         builder.addPaths(.{

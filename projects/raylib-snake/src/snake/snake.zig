@@ -12,7 +12,7 @@ const Segment = @import("segment.zig").Segment;
 pub const Snake = struct {
     segments: ArrayList(Segment) = undefined,
 
-    last_movement_dir: Direction = .downward,
+    last_movement_dir: Direction = .down,
     input_direction: Direction = .none,
 
     // I'd leave this a reference if we want to read and update it on-the-fly in the future
@@ -35,7 +35,7 @@ pub const Snake = struct {
 
     pub fn restart(self: *Snake, allocator: Allocator) !void {
         self.segments.clearAndFree(allocator);
-        self.last_movement_dir = .downward;
+        self.last_movement_dir = .down;
         self.input_direction = .none;
 
         for (0..self.gcfg.init_snake_length) |i| {

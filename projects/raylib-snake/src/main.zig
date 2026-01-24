@@ -1,5 +1,5 @@
-const std = @import("std");
 const rl = @import("raylib");
+const std = @import("std");
 
 const utils = @import("utils.zig");
 const Vec2 = @import("vec2.zig").Vec2;
@@ -72,9 +72,9 @@ const Game = struct {
         } else if (rl.isKeyPressed(rl.KeyboardKey.left)) {
             self.snake.input_direction = Direction.left;
         } else if (rl.isKeyPressed(rl.KeyboardKey.up)) {
-            self.snake.input_direction = Direction.upward;
+            self.snake.input_direction = Direction.up;
         } else if (rl.isKeyPressed(rl.KeyboardKey.down)) {
-            self.snake.input_direction = Direction.downward;
+            self.snake.input_direction = Direction.down;
         }
     }
 
