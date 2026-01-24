@@ -4,6 +4,8 @@ pub const Vec2 = struct {
     x: i32 = undefined,
     y: i32 = undefined,
 
+    pub const zero = Vec2{ .x = 0, .y = 0 };
+
     pub fn create(x: i32, y: i32) Vec2 {
         return .{
             .x = x,
