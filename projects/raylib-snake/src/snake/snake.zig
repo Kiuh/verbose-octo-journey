@@ -3,8 +3,8 @@ const ArrayList = std.ArrayList;
 const Allocator = std.mem.Allocator;
 
 const Vec2 = @import("../vec2.zig").Vec2;
-const utils = @import("../utils.zig");
-const Direction = utils.Direction;
+const direction = @import("../direction.zig");
+const Direction = direction.Direction;
 const GameConfig = @import("../game_config.zig").GameConfig;
 
 const Segment = @import("segment.zig").Segment;
@@ -71,11 +71,11 @@ pub const Snake = struct {
             prev_pos = self.segments.items[i].pos;
             if (i == 0) {
                 if (self.input_direction != .none and
-                    utils.getOppositeDirection(self.input_direction) != self.last_movement_dir)
+                    direction.getOppositeDirection(self.input_direction) != self.last_movement_dir)
                 {
                     self.last_movement_dir = self.input_direction;
                 }
-                self.segments.items[i].pos = Vec2.add(segment.pos, utils.directionToVector(self.last_movement_dir));
+                self.segments.items[i].pos = Vec2.add(segment.pos, direction.directionToVector(self.last_movement_dir));
                 self.input_direction = .none;
                 pos_to_set = prev_pos;
                 continue;
