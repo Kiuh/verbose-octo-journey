@@ -1,3 +1,0 @@
-[submodule "raylib-zig"]
-	path = modules/thirdparty/raylib-zig
-	url = https://github.com/raylib-zig/raylib-zig
