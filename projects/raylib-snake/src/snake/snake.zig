@@ -70,7 +70,9 @@ pub const Snake = struct {
             // head
             prev_pos = self.segments.items[i].pos;
             if (i == 0) {
-                if (self.input_direction != .none) {
+                if (self.input_direction != .none and
+                    utils.getOppositeDirection(self.input_direction) != self.last_movement_dir)
+                {
                     self.last_movement_dir = self.input_direction;
                 }
                 self.segments.items[i].pos = Vec2.add(segment.pos, utils.directionToVector(self.last_movement_dir));
