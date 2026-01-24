@@ -13,7 +13,12 @@ pub fn build(b: *std.Build) void {
     });
 
     // Raylib module
-    const raylib_dep = b.dependency("raylib_zig", .{
+    const wrapper_dep = b.dependency("raylib_zig_wrapper", .{
+        .target = target,
+        .optimize = optimize,
+    });
+
+    const raylib_dep = wrapper_dep.builder.dependency("raylib_zig", .{
         .target = target,
         .optimize = optimize,
     });
