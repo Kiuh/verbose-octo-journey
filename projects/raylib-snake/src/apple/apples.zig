@@ -38,12 +38,12 @@ pub const Apples = struct {
         self.list.clearAndFree(allocator);
 
         for (0..self.gcfg.init_apple_count) |_| {
-            const pos = self.get_position();
+            const pos = self.getPosition();
             try self.list.append(allocator, .{ .pos = pos });
         }
     }
 
-    pub fn get_position(self: *Apples) Vec2 {
+    pub fn getPosition(self: *Apples) Vec2 {
         var candidate: Vec2 = Vec2{
             .x = self.rand.intRangeAtMost(i32, 0, self.world.width - 1),
             .y = self.rand.intRangeAtMost(i32, 0, self.world.height - 1),
@@ -79,8 +79,8 @@ pub const Apples = struct {
         return candidate;
     }
 
-    pub fn check_apples(self: *Apples) i32 {
-        const head = self.snake.get_head();
+    pub fn checkApples(self: *Apples) i32 {
+        const head = self.snake.getHead();
 
         for (self.list.items, 0..) |apple, i| {
             if (Vec2.isEqual(apple.pos, head.pos)) {

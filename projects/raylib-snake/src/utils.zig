@@ -8,7 +8,7 @@ pub const Direction = enum {
     left,
 };
 
-pub fn direction_to_vector(dir: Direction) Vec2 {
+pub fn directionToVector(dir: Direction) Vec2 {
     switch (dir) {
         Direction.up => {
             return Vec2{ .x = 0, .y = -1 };

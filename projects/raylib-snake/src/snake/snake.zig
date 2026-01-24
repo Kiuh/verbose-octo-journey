@@ -29,7 +29,7 @@ pub const Snake = struct {
         self.segments.deinit(allocator);
     }
 
-    pub fn get_head(self: *Snake) Segment {
+    pub fn getHead(self: *Snake) Segment {
         return self.segments.items[0];
     }
 
@@ -53,7 +53,7 @@ pub const Snake = struct {
         try self.segments.append(allocator, seg);
     }
 
-    pub fn check_overlap(self: *Snake) bool {
+    pub fn checkOverlap(self: *Snake) bool {
         const head = self.segments.items[0];
         for (self.segments.items) |seg| {
             if (Vec2.isEqual(seg.pos, head.pos)) {
@@ -73,7 +73,7 @@ pub const Snake = struct {
                 if (self.input_direction != .none) {
                     self.last_movement_dir = self.input_direction;
                 }
-                self.segments.items[i].pos = Vec2.add(segment.pos, utils.direction_to_vector(self.last_movement_dir));
+                self.segments.items[i].pos = Vec2.add(segment.pos, utils.directionToVector(self.last_movement_dir));
                 self.input_direction = .none;
                 pos_to_set = prev_pos;
                 continue;
