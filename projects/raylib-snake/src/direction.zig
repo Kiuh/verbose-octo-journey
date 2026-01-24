@@ -6,44 +6,28 @@ pub const Direction = enum {
     down,
     right,
     left,
+
+    pub fn asVec2(self: Direction) Vec2 {
+        return switch (self) {
+            .up => .{ .x = 0, .y = -1 },
+            .down => .{ .x = 0, .y = 1 },
+            .right => .{ .x = 1, .y = 0 },
+            .left => .{ .x = -1, .y = 0 },
+            .none => Vec2.zero,
+        };
+    }
+
+    pub fn getOpposite(self: Direction) Direction {
+        return switch (self) {
+            .up => .down,
+            .down => .up,
+            .right => .left,
+            .left => .right,
+            .none => .none,
+        };
+    }
+
+    pub fn isOppositeTo(self: Direction, other: Direction) bool {
+        return self.getOpposite() == other;
+    }
 };
-
-pub fn directionToVector(dir: Direction) Vec2 {
-    switch (dir) {
-        Direction.up => {
-            return Vec2{ .x = 0, .y = -1 };
-        },
-        Direction.down => {
-            return Vec2{ .x = 0, .y = 1 };
-        },
-        Direction.right => {
-            return Vec2{ .x = 1, .y = 0 };
-        },
-        Direction.left => {
-            return Vec2{ .x = -1, .y = 0 };
-        },
-        Direction.none => {
-            return Vec2{ .x = 0, .y = 0 };
-        },
-    }
-}
-
-pub fn getOppositeDirection(dir: Direction) Direction {
-    switch (dir) {
-        Direction.up => {
-            return .down;
-        },
-        Direction.down => {
-            return .up;
-        },
-        Direction.right => {
-            return .left;
-        },
-        Direction.left => {
-            return .right;
-        },
-        Direction.none => {
-            return .none;
-        },
-    }
-}
