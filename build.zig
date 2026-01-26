@@ -19,9 +19,6 @@ pub fn build(b: *Build) void {
             }
             builder.addRule(.{ .builtin = @enumFromInt(f.value) }, .{});
         }
-        builder.addPaths(.{
-            .exclude = &.{b.path("modules/thirdparty/")},
-        });
         break :step builder.build();
     });
 
