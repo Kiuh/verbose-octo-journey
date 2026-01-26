@@ -24,6 +24,14 @@ zig build --help
 ```
 to see all available options.
 
+## Project setup
+
+Install and use pre-commits, see https://pre-commit.com
+
+```sh
+pre-commit install
+```
+
 ## And remember
 
  * Communicate intent precisely.
