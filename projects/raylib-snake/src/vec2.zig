@@ -1,5 +1,4 @@
 const rl = @import("raylib");
-const expect = @import("std").testing.expect;
 
 pub const Vec2 = struct {
     x: i32 = undefined,

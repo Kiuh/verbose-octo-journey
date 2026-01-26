@@ -1,4 +1,4 @@
-name: Zig Build Lint and Test
+name: Zig Build, Lint and Format
 
 on:
   push:
