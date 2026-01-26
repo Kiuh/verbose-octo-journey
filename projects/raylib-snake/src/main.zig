@@ -21,7 +21,9 @@ const Game = struct {
     apples: *Apples = undefined,
 
     runtime_screen_size: Vec2 = undefined,
-    block_size: f32 = 0.0,
+    grid_cell_size: f32 = 0.0,
+    x_offset: f32 = 0.0,
+    y_offset: f32 = 0.0,
 
     last_frame_time: i64 = undefined,
 
@@ -118,32 +120,29 @@ const Game = struct {
         self.last_frame_time = std.time.milliTimestamp();
     }
 
-    fn getGridPosOffset(self: *Game, pos: Vec2) rl.Vector2 {
+    fn getPixelPosFromGrid(self: *Game, pos: Vec2, center_pivot: bool) rl.Vector2 {
         const rl_pos = pos.asRLVec2();
-
+        var pivot_offset: f32 = 0;
+        if (center_pivot) {
+            pivot_offset = self.grid_cell_size / 2.0;
+        }
         return rl.Vector2{
-            .x = self.block_size / 2.0 + rl_pos.x * self.block_size,
-            .y = self.block_size / 2.0 + rl_pos.y * self.block_size,
-        };
-    }
-
-    fn getGridPos(self: *Game, pos: Vec2) rl.Vector2 {
-        const rl_pos = pos.asRLVec2();
-        return rl.Vector2{
-            .x = rl_pos.x * self.block_size,
-            .y = rl_pos.y * self.block_size,
+            .x = rl_pos.x * self.grid_cell_size + self.x_offset + pivot_offset,
+            .y = rl_pos.y * self.grid_cell_size + self.y_offset + pivot_offset,
         };
     }
 
     pub fn drawGrid(self: *Game) void {
-        var i: i32 = 0;
-        while (i <= self.world.width) : (i += 1) {
-            const pos_x = @as(f32, @floatFromInt(i)) * self.block_size;
-            const start_pos = rl.Vector2{ .x = pos_x, .y = 0 };
-            const end_pos = rl.Vector2{
+        var pos_x: i32 = 0;
+        while (pos_x <= self.world.width) : (pos_x += 1) {
+            const start_pos = self.getPixelPosFromGrid(.{
                 .x = pos_x,
-                .y = @as(f32, @floatFromInt(self.runtime_screen_size.y)),
-            };
+                .y = 0,
+            }, false);
+            const end_pos = self.getPixelPosFromGrid(.{
+                .x = pos_x,
+                .y = self.world.height,
+            }, false);
             rl.drawLineEx(
                 start_pos,
                 end_pos,
@@ -152,17 +151,16 @@ const Game = struct {
             );
         }
 
-        var row: i32 = 0;
-        while (row <= self.world.height) : (row += 1) {
-            const pos_y: f32 = @as(f32, @floatFromInt(row)) * self.block_size;
-            const start_pos = rl.Vector2{
+        var pos_y: i32 = 0;
+        while (pos_y <= self.world.height) : (pos_y += 1) {
+            const start_pos = self.getPixelPosFromGrid(.{
                 .x = 0,
                 .y = pos_y,
-            };
-            const end_pos = rl.Vector2{
-                .x = @as(f32, @floatFromInt(self.runtime_screen_size.x)),
+            }, false);
+            const end_pos = self.getPixelPosFromGrid(.{
+                .x = self.world.width,
                 .y = pos_y,
-            };
+            }, false);
             rl.drawLineEx(
                 start_pos,
                 end_pos,
@@ -174,8 +172,8 @@ const Game = struct {
 
     pub fn drawApples(self: *Game) void {
         for (self.apples.list.items) |apple| {
-            const pos = self.getGridPosOffset(apple.pos);
-            const radius = self.block_size / 2.0;
+            const pos = self.getPixelPosFromGrid(apple.pos, true);
+            const radius = self.grid_cell_size / 2.0;
             rl.drawCircle(
                 @as(i32, @intFromFloat(pos.x)),
                 @as(i32, @intFromFloat(pos.y)),
@@ -190,14 +188,15 @@ const Game = struct {
         const size_step: f32 = 0.4 / @as(f32, @floatFromInt(self.snake.segments.items.len));
         for (self.snake.segments.items) |seg| {
             const pos_shift = (1.0 - size_factor) / 2.0;
-            var pos = self.getGridPos(seg.pos);
+            // no centering because of custom logic below
+            var pos = self.getPixelPosFromGrid(seg.pos, false);
 
-            pos.x += pos_shift * self.block_size;
-            pos.y += pos_shift * self.block_size;
+            pos.x += pos_shift * self.grid_cell_size;
+            pos.y += pos_shift * self.grid_cell_size;
 
             const size = rl.Vector2{
-                .x = self.block_size * size_factor,
-                .y = self.block_size * size_factor,
+                .x = self.grid_cell_size * size_factor,
+                .y = self.grid_cell_size * size_factor,
             };
 
             size_factor -= size_step;
@@ -206,19 +205,26 @@ const Game = struct {
         }
     }
 
+    fn handleResize(self: *Game) void {
+        const block_size = @as(i32, @intFromFloat(self.grid_cell_size));
+        self.runtime_screen_size.x = @as(i32, @intFromFloat(@as(f32, @floatFromInt(rl.getScreenWidth())) * rl.getWindowScaleDPI().x));
+        self.runtime_screen_size.y = @as(i32, @intFromFloat(@as(f32, @floatFromInt(rl.getScreenHeight())) * rl.getWindowScaleDPI().y));
+        self.x_offset = @floatFromInt(@divTrunc(self.runtime_screen_size.x - self.world.width * block_size, 2));
+        self.y_offset = @floatFromInt(@divTrunc(self.runtime_screen_size.y - self.world.height * block_size, 2));
+    }
+
     pub fn draw(self: *Game) void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
         rl.clearBackground(self.gcfg.background_color);
         if (rl.isWindowResized()) {
-            self.runtime_screen_size.x = @as(i32, @intFromFloat(@as(f32, @floatFromInt(rl.getScreenWidth())) * rl.getWindowScaleDPI().x));
-            self.runtime_screen_size.y = @as(i32, @intFromFloat(@as(f32, @floatFromInt(rl.getScreenHeight())) * rl.getWindowScaleDPI().y));
+            self.handleResize();
         }
+
         const x_block = @as(f32, @floatFromInt(self.runtime_screen_size.x)) / @as(f32, @floatFromInt(self.world.width));
         const y_block = @as(f32, @floatFromInt(self.runtime_screen_size.y)) / @as(f32, @floatFromInt(self.world.height));
-        self.block_size = @min(x_block, y_block);
-
+        self.grid_cell_size = @min(x_block, y_block);
         self.drawGrid();
         self.drawApples();
         self.drawSnake();
