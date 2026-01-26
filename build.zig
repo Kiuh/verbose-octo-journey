@@ -11,6 +11,18 @@ const rules = .{
                 .severity = .off,
                 .len = 0,
             },
+            .enum_field_min_len = .{
+                .severity = .off,
+                .len = 0,
+            },
+            .struct_field_min_len = .{
+                .severity = .off,
+                .len = 0,
+            },
+            .union_field_min_len = .{
+                .severity = .off,
+                .len = 0,
+            },
         },
     },
     .{
@@ -18,14 +30,24 @@ const rules = .{
         .config = .{
             .union_field_order = .{
                 .order = .alphabetical_ascending,
-                .severity = .warning,
+                .severity = .off,
+            },
+            .enum_field_order = .{
+                .order = .alphabetical_ascending,
+                .severity = .off,
+            },
+            .struct_field_order = .{
+                .order = .alphabetical_ascending,
+                .severity = .off,
             },
         },
     },
     .{
         .rule = zlinter.BuiltinLintRule.require_doc_comment,
         .config = .{
-            .severity = .off,
+            .file_severity = .off,
+            .public_severity = .off,
+            .private_severity = .off,
         },
     },
     .{
@@ -51,9 +73,7 @@ pub fn build(b: *Build) void {
         outer: inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
             inline for (rules) |value| {
                 if (f.value == @intFromEnum(value.rule)) {
-                    // builder.addRule(
-                    //     .{ .builtin = value.rule },
-                    // );
+                    builder.addRule(.{ .builtin = value.rule }, value.config);
                     continue :outer;
                 }
             }
