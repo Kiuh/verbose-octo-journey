@@ -2,28 +2,24 @@
     .name = .verbose_octo_journey,
     .version = "0.0.1",
     .fingerprint = 0xcaadbbed3342cf1e,
-    .minimum_zig_version = "0.15.1",
+    .minimum_zig_version = "0.15.2",
     .dependencies = .{
         // modules
         .thirdparty_depths = .{
             .path = "modules/thirdparty-depths",
-            .lazy = true,
         },
         // programs
         .dependency_viewer = .{
             .path = "programs/dependency-viewer",
-            .lazy = true,
         },
         // projects
         .raylib_snake = .{
             .path = "projects/raylib-snake",
-            .lazy = true,
         },
         // Must be here at top level due to usage in build.zig
         .zlinter = .{
             .url = "git+https://github.com/kurtwagner/zlinter?ref=0.15.x#da076e51e7aa348f83607b7b241d859b0184329a",
             .hash = "zlinter-0.0.1-OjQ08QkJCwBhuO1JtdujNh7OC56rR7kiofwavKpgDj96",
-            .lazy = true,
         },
     },
     .paths = .{

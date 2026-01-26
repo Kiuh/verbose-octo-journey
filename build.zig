@@ -1,6 +1,6 @@
 const std = @import("std");
 const zlinter = @import("zlinter");
-const rules = @import("configs/linter_rules.zig").LinterRules;
+const linter_rules = @import("linter_rules.zig").LinterRules;
 
 const Build = std.Build;
 
@@ -8,7 +8,7 @@ fn createLintStep(b: *Build) *std.Build.Step {
     var builder = zlinter.builder(b, .{});
 
     outer: inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
-        inline for (rules) |value| {
+        inline for (linter_rules) |value| {
             if (f.value == @intFromEnum(value.rule)) {
                 builder.addRule(.{ .builtin = value.rule }, value.config);
                 continue :outer;
@@ -49,8 +49,8 @@ pub fn build(b: *Build) void {
     };
 
     inline for (apps) |app| {
-        const dep = b.lazyDependency(app.dependency_name, default_module_options);
-        const artifact = dep.?.artifact(app.artifact_name);
+        const dep = b.dependency(app.dependency_name, default_module_options);
+        const artifact = dep.artifact(app.artifact_name);
         b.installArtifact(artifact);
         build_cmd.dependOn(&artifact.step);
 

@@ -20,10 +20,10 @@ pub fn build(b: *std.Build) void {
     // Raylib module
     const depths = b.dependency("thirdparty_depths", default_module_options);
 
-    const raylib_dep = depths.builder.lazyDependency("raylib_zig", default_module_options);
-    const raylib = raylib_dep.?.module("raylib"); // main raylib module
-    const raygui = raylib_dep.?.module("raygui"); // raygui module
-    const raylib_artifact = raylib_dep.?.artifact("raylib"); // raylib C library
+    const raylib_dep = depths.builder.dependency("raylib_zig", default_module_options);
+    const raylib = raylib_dep.module("raylib"); // main raylib module
+    const raygui = raylib_dep.module("raygui"); // raygui module
+    const raylib_artifact = raylib_dep.artifact("raylib"); // raylib C library
 
     // Executable
     const exe = b.addExecutable(.{

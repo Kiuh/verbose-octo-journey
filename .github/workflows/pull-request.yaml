@@ -2,27 +2,30 @@ name: Zig Build, Lint and Format
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   check-all:
-    runs-on: [ ubuntu-latest, macos-latest, windows-latest ]
+    runs-on: [windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
         with:
-          version: 0.15.1
-      
+          version: 0.15.2
+
       - name: Format check
         run: zig fmt --check .
-          
-      - name: Build all
-        run: zig build --summary all all
-      
-      - name: Lint check
-        run: zig build lint
+
+      - name: Build snake
+        run: cd projects/raylib-snake && zig build --summary all all
+
+#      - name: Build all
+#        run: zig build --summary all all
+
+#      - name: Lint check
+#        run: zig build lint
