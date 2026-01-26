@@ -1,6 +1,7 @@
 .{
     .name = .dependency_viewer,
     .version = "0.0.0",
+    .fingerprint = 0x426c657b3f84a27,
     .minimum_zig_version = "0.15.1",
     .dependencies = .{},
     .paths = .{

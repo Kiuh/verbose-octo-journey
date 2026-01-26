@@ -5,32 +5,30 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    const default_module_options = .{
+        .target = target,
+        .optimize = optimize,
+    };
+
     // Exe module
-    const exe_mod = b.createModule(.{
+    const snake_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
 
     // Raylib module
-    const wrapper_dep = b.dependency("raylib_zig_wrapper", .{
-        .target = target,
-        .optimize = optimize,
-    });
+    const depths = b.dependency("thirdparty_depths", default_module_options);
 
-    const raylib_dep = wrapper_dep.builder.dependency("raylib_zig", .{
-        .target = target,
-        .optimize = optimize,
-    });
-
-    const raylib = raylib_dep.module("raylib"); // main raylib module
-    const raygui = raylib_dep.module("raygui"); // raygui module
-    const raylib_artifact = raylib_dep.artifact("raylib"); // raylib C library
+    const raylib_dep = depths.builder.lazyDependency("raylib_zig", default_module_options);
+    const raylib = raylib_dep.?.module("raylib"); // main raylib module
+    const raygui = raylib_dep.?.module("raygui"); // raygui module
+    const raylib_artifact = raylib_dep.?.artifact("raylib"); // raylib C library
 
     // Executable
     const exe = b.addExecutable(.{
         .name = "raylib-snake",
-        .root_module = exe_mod,
+        .root_module = snake_mod,
     });
 
     // Link Raylib
