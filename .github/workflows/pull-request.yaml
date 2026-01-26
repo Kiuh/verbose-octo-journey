@@ -22,7 +22,7 @@ jobs:
         run: zig fmt --check .
 
       - name: Build snake
-        run: cd projects/raylib-snake && zig build --summary all all
+        run: cd projects/raylib-snake && zig build --summary all
 
 #      - name: Build all
 #        run: zig build --summary all all
