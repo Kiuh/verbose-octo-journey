@@ -1,17 +1,17 @@
 .{
-    .name = .raylib_zig_wrapper,
+    .name = .thirdparty_depths,
     .version = "0.0.1",
-    .fingerprint = 0x8fba546cb80d95bc,
-    .minimum_zig_version = "0.15.1",
+    .fingerprint = 0x773f97b8378897ef,
+    .minimum_zig_version = "0.15.2",
     .dependencies = .{
         .raylib_zig = .{
             .url = "git+https://github.com/raylib-zig/raylib-zig?ref=devel#7d4761b878f43671024ce197f721827b5355a67e",
             .hash = "raylib_zig-5.6.0-dev-KE8REGlNBQDR7NML06VBtT7gP3VZNY70E5WohAxzqrNn",
+            .lazy = true,
         },
     },
     .paths = .{
         "build.zig",
         "build.zig.zon",
-        "src",
     },
 }

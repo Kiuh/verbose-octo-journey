@@ -4,8 +4,8 @@
     .fingerprint = 0x2bef8ce3f8eb27f4,
     .minimum_zig_version = "0.15.1",
     .dependencies = .{
-        .raylib_zig_wrapper = .{
-            .path = "../../modules/raylib-zig-wrapper",
+        .thirdparty_depths = .{
+            .path = "../../modules/thirdparty-depths",
         },
     },
     .paths = .{

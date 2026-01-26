@@ -1,44 +1,61 @@
 const std = @import("std");
 const zlinter = @import("zlinter");
-const rules = @import("linter_rules.zig").LinterRules;
+const rules = @import("configs/linter_rules.zig").LinterRules;
 
 const Build = std.Build;
 
-pub fn build(b: *Build) void {
-    const lint_cmd = b.step("lint", "Lint source code");
-    const build_all = b.step("all", "Build everything");
+fn createLintStep(b: *Build) *std.Build.Step {
+    var builder = zlinter.builder(b, .{});
 
-    lint_cmd.dependOn(step: {
-        var builder = zlinter.builder(b, .{});
-        outer: inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
-            inline for (rules) |value| {
-                if (f.value == @intFromEnum(value.rule)) {
-                    builder.addRule(.{ .builtin = value.rule }, value.config);
-                    continue :outer;
-                }
+    outer: inline for (@typeInfo(zlinter.BuiltinLintRule).@"enum".fields) |f| {
+        inline for (rules) |value| {
+            if (f.value == @intFromEnum(value.rule)) {
+                builder.addRule(.{ .builtin = value.rule }, value.config);
+                continue :outer;
             }
-            builder.addRule(.{ .builtin = @enumFromInt(f.value) }, .{});
         }
-        break :step builder.build();
-    });
+        builder.addRule(.{ .builtin = @enumFromInt(f.value) }, .{});
+    }
 
-    const dep_viewer = b.dependency(
-        "dependency_viewer",
-        .{
-            .target = b.graph.host,
-        },
-    );
-    const viewer_exe = dep_viewer.artifact("dependency-viewer");
-    b.installArtifact(viewer_exe);
-    build_all.dependOn(&viewer_exe.step);
+    return builder.build();
+}
 
-    const raylib_snake = b.dependency(
-        "raylib_snake",
+pub fn build(b: *Build) void {
+    const target = b.standardTargetOptions(.{});
+    const optimize = b.standardOptimizeOption(.{});
+
+    const default_module_options = .{
+        .target = target,
+        .optimize = optimize,
+    };
+
+    const lint_cmd = b.step("lint", "Lint source code");
+    const build_cmd = b.step("all", "Build everything");
+
+    const lint_step = createLintStep(b);
+    lint_cmd.dependOn(lint_step);
+
+    const apps = .{
         .{
-            .target = b.graph.host,
+            .dependency_name = "dependency_viewer",
+            .artifact_name = "dependency-viewer",
+            .run_name = "dv",
         },
-    );
-    const raylib_snake_exe = raylib_snake.artifact("raylib-snake");
-    b.installArtifact(raylib_snake_exe);
-    build_all.dependOn(&raylib_snake_exe.step);
+        .{
+            .dependency_name = "raylib_snake",
+            .artifact_name = "raylib-snake",
+            .run_name = "snake",
+        },
+    };
+
+    inline for (apps) |app| {
+        const dep = b.lazyDependency(app.dependency_name, default_module_options);
+        const artifact = dep.?.artifact(app.artifact_name);
+        b.installArtifact(artifact);
+        build_cmd.dependOn(&artifact.step);
+
+        const run_step = b.step("run-" ++ app.run_name, "Run the " ++ app.dependency_name);
+        const run_cmd = b.addRunArtifact(artifact);
+        run_step.dependOn(&run_cmd.step);
+    }
 }
