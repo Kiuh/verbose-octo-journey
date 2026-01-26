@@ -1,8 +1,6 @@
-const zlinter = @import("zlinter");
-
-pub const LinterRules = .{
+.{
     .{
-        .rule = zlinter.BuiltinLintRule.field_naming,
+        .rule = .field_naming,
         .config = .{
             .error_field_min_len = .{
                 .severity = .off,
@@ -23,7 +21,7 @@ pub const LinterRules = .{
         },
     },
     .{
-        .rule = zlinter.BuiltinLintRule.field_ordering,
+        .rule = .field_ordering,
         .config = .{
             .union_field_order = .{
                 .order = .alphabetical_ascending,
@@ -40,7 +38,7 @@ pub const LinterRules = .{
         },
     },
     .{
-        .rule = zlinter.BuiltinLintRule.require_doc_comment,
+        .rule = .require_doc_comment,
         .config = .{
             .file_severity = .off,
             .public_severity = .off,
@@ -48,15 +46,15 @@ pub const LinterRules = .{
         },
     },
     .{
-        .rule = zlinter.BuiltinLintRule.no_undefined,
+        .rule = .no_undefined,
         .config = .{
             .severity = .off,
         },
     },
     .{
-        .rule = zlinter.BuiltinLintRule.no_inferred_error_unions,
+        .rule = .no_inferred_error_unions,
         .config = .{
             .severity = .off,
         },
     },
-};
+}

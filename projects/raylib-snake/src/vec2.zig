@@ -24,7 +24,7 @@ pub const Vec2 = struct {
         };
     }
 
-    pub fn min(self: *Vec2) i32 {
+    pub fn min(self: *const Vec2) i32 {
         if (self.x < self.y) {
             return self.x;
         } else {
@@ -32,17 +32,10 @@ pub const Vec2 = struct {
         }
     }
 
-    pub fn rlVec2(self: *Vec2) rl.Vector2 {
+    pub fn asRLVec2(self: *const Vec2) rl.Vector2 {
         return .{
             .x = @as(f32, @floatFromInt(self.x)),
             .y = @as(f32, @floatFromInt(self.y)),
-        };
-    }
-
-    pub fn to_rl_vec2(vec: Vec2) rl.Vector2 {
-        return .{
-            .x = @as(f32, @floatFromInt(vec.x)),
-            .y = @as(f32, @floatFromInt(vec.y)),
         };
     }
 };
