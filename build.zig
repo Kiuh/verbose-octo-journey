@@ -1,6 +1,6 @@
 const std = @import("std");
 const zlinter = @import("zlinter");
-const linter_rules = @import("linter_rules.zig").LinterRules;
+const linter_rules = @import("configs/linter_rules.zig").LinterRules;
 
 const Build = std.Build;
 

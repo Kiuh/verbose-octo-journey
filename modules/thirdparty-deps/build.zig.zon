@@ -1,7 +1,7 @@
 .{
-    .name = .thirdparty_depths,
+    .name = .thirdparty_deps,
     .version = "0.0.1",
-    .fingerprint = 0x773f97b8378897ef,
+    .fingerprint = 0x846b41066b63bbf3,
     .minimum_zig_version = "0.15.2",
     .dependencies = .{
         .raylib_zig = .{

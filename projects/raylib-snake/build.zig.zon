@@ -4,8 +4,8 @@
     .fingerprint = 0x2bef8ce3f8eb27f4,
     .minimum_zig_version = "0.15.2",
     .dependencies = .{
-        .thirdparty_depths = .{
-            .path = "../../modules/thirdparty-depths",
+        .thirdparty_deps = .{
+            .path = "../../modules/thirdparty-deps",
         },
     },
     .paths = .{
