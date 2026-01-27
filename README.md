@@ -11,7 +11,7 @@ and easy access to repo content.
 
 Repository structure:
 ```
-├── modules/     # libraries and utilities without executable options 
+├── modules/     # libraries and utilities without executable options
 ├── programs/    # executables and helpers
 ├── projects/    # logically separated projects
 ├── ...
