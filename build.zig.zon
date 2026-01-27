@@ -5,8 +5,8 @@
     .minimum_zig_version = "0.15.2",
     .dependencies = .{
         // modules
-        .thirdparty_depths = .{
-            .path = "modules/thirdparty-depths",
+        .thirdparty_deps = .{
+            .path = "modules/thirdparty-deps",
         },
         // programs
         .dependency_viewer = .{

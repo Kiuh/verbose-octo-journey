@@ -18,7 +18,7 @@ pub fn build(b: *std.Build) void {
     });
 
     // Raylib module
-    const depths = b.dependency("thirdparty_depths", default_module_options);
+    const depths = b.dependency("thirdparty_deps", default_module_options);
 
     const raylib_dep = depths.builder.dependency("raylib_zig", default_module_options);
     const raylib = raylib_dep.module("raylib"); // main raylib module
