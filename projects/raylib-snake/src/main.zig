@@ -21,9 +21,8 @@ const Game = struct {
     apples: *Apples = undefined,
 
     runtime_screen_size: Vec2 = undefined,
-    grid_cell_size: f32 = 0.0,
-    x_offset: f32 = 0.0,
-    y_offset: f32 = 0.0,
+    grid_cell_size: f32 = 0,
+    offset: Vec2 = undefined,
 
     last_frame_time: i64 = undefined,
 
@@ -39,7 +38,7 @@ const Game = struct {
         const apples = try allocator.create(Apples);
         apples.* = Apples.init(snake, world, gcfg);
 
-        return .{
+        var game = Game{
             .gcfg = gcfg,
             .world = world,
             .snake = snake,
@@ -47,6 +46,9 @@ const Game = struct {
             .last_frame_time = std.time.milliTimestamp(),
             .runtime_screen_size = gcfg.start_screen_size,
         };
+        game.updateWindowSize();
+
+        return game;
     }
 
     pub fn deinit(self: *Game, allocator: Allocator) void {
@@ -127,22 +129,23 @@ const Game = struct {
             pivot_offset = self.grid_cell_size / 2.0;
         }
         return rl.Vector2{
-            .x = rl_pos.x * self.grid_cell_size + self.x_offset + pivot_offset,
-            .y = rl_pos.y * self.grid_cell_size + self.y_offset + pivot_offset,
+            .x = rl_pos.x * self.grid_cell_size + @as(f32, @floatFromInt(self.offset.x)) + pivot_offset,
+            .y = rl_pos.y * self.grid_cell_size + @as(f32, @floatFromInt(self.offset.y)) + pivot_offset,
         };
     }
 
     pub fn drawGrid(self: *Game) void {
         var pos_x: i32 = 0;
+        const center_pivot = false;
         while (pos_x <= self.world.width) : (pos_x += 1) {
             const start_pos = self.getPixelPosFromGrid(.{
                 .x = pos_x,
                 .y = 0,
-            }, false);
+            }, center_pivot);
             const end_pos = self.getPixelPosFromGrid(.{
                 .x = pos_x,
                 .y = self.world.height,
-            }, false);
+            }, center_pivot);
             rl.drawLineEx(
                 start_pos,
                 end_pos,
@@ -156,11 +159,11 @@ const Game = struct {
             const start_pos = self.getPixelPosFromGrid(.{
                 .x = 0,
                 .y = pos_y,
-            }, false);
+            }, center_pivot);
             const end_pos = self.getPixelPosFromGrid(.{
                 .x = self.world.width,
                 .y = pos_y,
-            }, false);
+            }, center_pivot);
             rl.drawLineEx(
                 start_pos,
                 end_pos,
@@ -171,8 +174,9 @@ const Game = struct {
     }
 
     pub fn drawApples(self: *Game) void {
+        const center_pivot = true;
         for (self.apples.list.items) |apple| {
-            const pos = self.getPixelPosFromGrid(apple.pos, true);
+            const pos = self.getPixelPosFromGrid(apple.pos, center_pivot);
             const radius = self.grid_cell_size / 2.0;
             rl.drawCircle(
                 @as(i32, @intFromFloat(pos.x)),
@@ -186,10 +190,11 @@ const Game = struct {
     pub fn drawSnake(self: *Game) void {
         var size_factor: f32 = self.gcfg.reduce_size_factor;
         const size_step: f32 = 0.4 / @as(f32, @floatFromInt(self.snake.segments.items.len));
+        const center_pivot = false;
         for (self.snake.segments.items) |seg| {
             const pos_shift = (1.0 - size_factor) / 2.0;
             // no centering because of custom logic below
-            var pos = self.getPixelPosFromGrid(seg.pos, false);
+            var pos = self.getPixelPosFromGrid(seg.pos, center_pivot);
 
             pos.x += pos_shift * self.grid_cell_size;
             pos.y += pos_shift * self.grid_cell_size;
@@ -205,12 +210,20 @@ const Game = struct {
         }
     }
 
-    fn handleResize(self: *Game) void {
+    fn updateWindowSize(self: *Game) void {
+        // compute max allowed grid cell size
+        const cell_width = @as(f32, @floatFromInt(self.runtime_screen_size.x)) / @as(f32, @floatFromInt(self.world.width));
+        const cell_height = @as(f32, @floatFromInt(self.runtime_screen_size.y)) / @as(f32, @floatFromInt(self.world.height));
+        self.grid_cell_size = @min(cell_width, cell_height);
+
+        // update internal screen size (still not sure why we even store it though)
         const block_size = @as(i32, @intFromFloat(self.grid_cell_size));
         self.runtime_screen_size.x = @as(i32, @intFromFloat(@as(f32, @floatFromInt(rl.getScreenWidth())) * rl.getWindowScaleDPI().x));
         self.runtime_screen_size.y = @as(i32, @intFromFloat(@as(f32, @floatFromInt(rl.getScreenHeight())) * rl.getWindowScaleDPI().y));
-        self.x_offset = @floatFromInt(@divTrunc(self.runtime_screen_size.x - self.world.width * block_size, 2));
-        self.y_offset = @floatFromInt(@divTrunc(self.runtime_screen_size.y - self.world.height * block_size, 2));
+
+        // update offset according to the screen size
+        self.offset.x = @divTrunc(self.runtime_screen_size.x - self.world.width * block_size, 2);
+        self.offset.y = @divTrunc(self.runtime_screen_size.y - self.world.height * block_size, 2);
     }
 
     pub fn draw(self: *Game) void {
@@ -219,12 +232,9 @@ const Game = struct {
 
         rl.clearBackground(self.gcfg.background_color);
         if (rl.isWindowResized()) {
-            self.handleResize();
+            self.updateWindowSize();
         }
 
-        const x_block = @as(f32, @floatFromInt(self.runtime_screen_size.x)) / @as(f32, @floatFromInt(self.world.width));
-        const y_block = @as(f32, @floatFromInt(self.runtime_screen_size.y)) / @as(f32, @floatFromInt(self.world.height));
-        self.grid_cell_size = @min(x_block, y_block);
         self.drawGrid();
         self.drawApples();
         self.drawSnake();
