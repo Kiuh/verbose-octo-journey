@@ -23,10 +23,10 @@ jobs:
 
       - name: Build snake
         run: cd projects/raylib-snake && zig build --summary all
-      
+
       - name: Setup python
         uses: actions/setup-python@v6
-      
+
       - name: Pre-commit checks
         uses: pre-commit/action@v3.0.1
 
