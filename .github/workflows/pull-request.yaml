@@ -18,6 +18,18 @@ jobs:
         with:
           version: 0.15.2
 
+      - name: Install Raylib dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libxcursor-dev \
+            libxinerama-dev \
+            libxrender-dev \
+            libgl1-mesa-dev
+
       - name: Format check
         run: zig fmt --check .
 
