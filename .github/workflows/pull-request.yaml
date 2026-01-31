@@ -8,10 +8,22 @@ on:
 
 jobs:
   check-all:
-    runs-on: [windows-latest]
+    runs-on: [ubuntu-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install Raylib dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev \
+            libxrandr-dev \
+            libxi-dev \
+            libxcursor-dev \
+            libxinerama-dev \
+            libxrender-dev \
+            libgl1-mesa-dev
 
       - name: Setup Zig
         uses: mlugg/setup-zig@v2
