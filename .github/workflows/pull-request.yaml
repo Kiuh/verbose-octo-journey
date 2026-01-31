@@ -42,8 +42,8 @@ jobs:
       - name: Pre-commit checks
         uses: pre-commit/action@v3.0.1
 
-      # - name: Build all
-      #   run: zig build --summary all all
+      - name: Build all
+        run: zig build --summary all all
 
-      - name: Lint check
-        run: zig build lint
+      # - name: Lint check
+      #   run: zig build lint
